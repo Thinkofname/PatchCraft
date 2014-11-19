@@ -51,16 +51,3 @@ public class ~GuiScreenMainMenu extends * {
         .any
     }
 }
-
-public class ~GuiButton {
-
-
-    static void <clinit>() {
-        .new *
-        .dup
-        .push-string "textures/gui/widgets.png"
-        .invoke-special * <init> (Ljava/lang/String;)V
-        .put-static ~GuiButton ~texture L*;
-        .return
-    }
-}

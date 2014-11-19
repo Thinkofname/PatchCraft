@@ -98,7 +98,10 @@ fun createPatchedJar() : File? {
         classes.classes(true).forEach {
             if (java.lang.Boolean.getBoolean("patchcraft.map")) {
                 val mapped = classes.getClass(it, scope)
-                val name = ClassReader(mapped).getClassName()
+                var name = scope.getClass(classes.getClassWrapper(it)!!)
+                if (name == null) {
+                    name = it
+                }
                 zip.putNextEntry(ZipEntry("$name.class"))
                 zip.write(mapped)
             } else {
