@@ -12,6 +12,9 @@ import java.util.zip.ZipOutputStream
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.Comparator
+import uk.co.thinkofdeath.patchtools.disassemble.Disassembler
+import uk.co.thinkofdeath.patchtools.PatchScope
+import org.objectweb.asm.ClassReader
 
 fun createPatchedJar() : File? {
     val minecraftFolder = getMinecraftLocation()
@@ -30,6 +33,14 @@ fun createPatchedJar() : File? {
     val classes = ClassSet(ClassPathWrapper(jar))
     val resources = hashMapOf<String, ByteArray>()
 
+    val self = File(javaClass<Dummy>()
+        .getProtectionDomain()
+        .getCodeSource()
+        .getLocation()
+        .toURI()
+    )
+    val dis = Disassembler(classes)
+
     ZipFile(jar).use {
         val entries = it.entries()
         while (entries.hasMoreElements()) {
@@ -38,6 +49,15 @@ fun createPatchedJar() : File? {
                 file.getName().startsWith("net/minecraft")) &&
                 file.getName().endsWith(".class")) {
                 classes.add(it.getInputStream(file))
+
+                if (java.lang.Boolean.getBoolean("patchcraft.dis")) {
+                    val name = file.getName().substring(0, file.getName().length - 6)
+                    val f = File(self.getParentFile(), "dis/$name.jpatch")
+                    if (!f.getParentFile().exists()) f.getParentFile().mkdirs()
+                    f.writeText(
+                        dis.disassemble(name)
+                    )
+                }
             } else {
                 it.getInputStream(file).use {
                     resources.put(file.getName(), it.readBytes())
@@ -49,12 +69,6 @@ fun createPatchedJar() : File? {
     println("Applying patches")
     val patcher = Patcher(classes)
 
-    val self = File(javaClass<Dummy>()
-        .getProtectionDomain()
-        .getCodeSource()
-        .getLocation()
-        .toURI()
-    )
     val patches = sortedMapOf<String, ByteArray>()
     ZipFile(self).use {
         val entries = it.entries()
@@ -68,9 +82,11 @@ fun createPatchedJar() : File? {
         }
     }
 
+    val scope = PatchScope()
+
     patches.forEach {
         println("Applying ${it.key}")
-        patcher.apply(it.value.inputStream)
+        scope.merge(patcher.apply(it.value.inputStream))
     }
 
     println("Saving")
@@ -80,8 +96,15 @@ fun createPatchedJar() : File? {
     ZipOutputStream(FileOutputStream(outJar)).use {
         val zip = it
         classes.classes(true).forEach {
-            zip.putNextEntry(ZipEntry("$it.class"))
-            zip.write(classes.getClass(it))
+            if (java.lang.Boolean.getBoolean("patchcraft.map")) {
+                val mapped = classes.getClass(it, scope)
+                val name = ClassReader(mapped).getClassName()
+                zip.putNextEntry(ZipEntry("$name.class"))
+                zip.write(mapped)
+            } else {
+                zip.putNextEntry(ZipEntry("$it.class"))
+                zip.write(classes.getClass(it))
+            }
         }
         for ((k, v) in resources) {
             if (k.startsWith("META-INF/")) continue

@@ -1,0 +1,66 @@
+
+public class ~GuiScreenMainMenu extends * {
+
+    public void ~initButtons() {
+        .any
+        .push-string "OOoooOOOoooo! Spooky!"
+        .any
+        .get-field ~GuiScreenMainMenu ~screenHeight I
+        .push-int 4
+        .div-int
+        .push-int 48
+        .any
+        .get-field ~GuiScreenMainMenu ~screenWidth I
+        .any
+        .push-string "menu.quit"
+        .push-int 0
+        .new-array Ljava/lang/Object;
+        .invoke-static * * (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+        .invoke-special ~GuiButton <init> (IIIIILjava/lang/String;)V
+        .invoke-interface java/util/List add (Ljava/lang/Object;)Z
+        .pop
+        .load-object 0
+        .get-field ~GuiScreenMainMenu ~buttonList Ljava/util/List;
+        // Our button
+        +load-object 0
+        +get-field ~GuiScreenMainMenu ~buttonList Ljava/util/List;
+        +new ~GuiButton
+        +dup
+        // ID
+        +push-int 99
+        // X
+        +load-object 0
+        +get-field ~GuiScreenMainMenu ~screenWidth I
+        +push-int 60
+        +sub-int
+        // Y
+        +load-object 0
+        +get-field ~GuiScreenMainMenu ~screenHeight I
+        +push-int 40
+        +sub-int
+        // Width
+        +push-int 60
+        // Height
+        +push-int 20
+        // Text
+        +push-string "PC Options"
+        +invoke-special ~GuiButton <init> (IIIIILjava/lang/String;)V
+        +invoke-interface java/util/List add (Ljava/lang/Object;)Z
+        +pop
+        // End
+        .any
+    }
+}
+
+public class ~GuiButton {
+
+
+    static void <clinit>() {
+        .new *
+        .dup
+        .push-string "textures/gui/widgets.png"
+        .invoke-special * <init> (Ljava/lang/String;)V
+        .put-static ~GuiButton ~texture L*;
+        .return
+    }
+}
