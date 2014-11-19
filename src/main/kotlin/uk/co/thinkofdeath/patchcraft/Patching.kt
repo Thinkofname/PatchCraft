@@ -15,6 +15,7 @@ import java.util.Comparator
 import uk.co.thinkofdeath.patchtools.disassemble.Disassembler
 import uk.co.thinkofdeath.patchtools.PatchScope
 import org.objectweb.asm.ClassReader
+import kotlin.util.measureTimeMillis
 
 fun createPatchedJar() : File? {
     val minecraftFolder = getMinecraftLocation()
@@ -85,8 +86,11 @@ fun createPatchedJar() : File? {
     val scope = PatchScope()
 
     patches.forEach {
-        println("Applying ${it.key}")
-        scope.merge(patcher.apply(it.value.inputStream))
+        val time = measureTimeMillis {
+            print("Applying ${it.key}")
+            scope.merge(patcher.apply(it.value.inputStream))
+        }
+        println(" [$time ms]")
     }
 
     println("Saving")

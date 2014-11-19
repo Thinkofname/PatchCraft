@@ -51,3 +51,18 @@ public class ~GuiScreenMainMenu extends * {
         .any
     }
 }
+
+public class ~GuiButton extends * {
+
+    public void ~pressSound(* na) {
+        .any
+        .push-string "gui.button.press"
+        .any
+    }
+
+    static void <clinit>() {
+        .any
+        .push-string "textures/gui/widgets.png"
+        .any
+    }
+}
