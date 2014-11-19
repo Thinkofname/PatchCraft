@@ -1,0 +1,11 @@
+
+import java.lang.String;
+
+public class net.minecraft.client.ClientBrandRetriever {
+
+    public static String getClientModName() {
+        -push-string *
+        +push-string "PatchCraft"
+        .return
+    }
+}
