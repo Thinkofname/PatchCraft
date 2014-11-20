@@ -8,7 +8,7 @@ import java.util.Arrays
 import com.google.gson.JsonParser
 import com.google.gson.GsonBuilder
 
-val MINECRAFT_VERSION = "1.8"
+val MINECRAFT_VERSION = "1.8.1-pre5"
 
 fun main(args: Array<String>) {
     if (args.size == 0) {
