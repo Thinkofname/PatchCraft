@@ -1,5 +1,5 @@
 
-public class ~GuiScreenMainMenu extends * {
+public class ~GuiScreenMainMenu extends ~GuiScreen {
 
     public void ~initButtons() {
         .any
@@ -50,19 +50,24 @@ public class ~GuiScreenMainMenu extends * {
         // End
         .any
     }
-}
 
-public class ~GuiButton extends * {
-
-    public void ~pressSound(* na) {
+    protected void ~onButtonClick(~GuiButton button) {
+        +load-object 1
+        +get-field ~GuiButton ~buttonId I
+        +push-int 99
+        +if-not-equal-int ~endCustom
+        +load-object 0
+        +get-field ~GuiScreenMainMenu ~owner L~GuiManager;
+        +push-null
+        +invoke-virtual ~GuiManager ~setScreen (L~GuiScreen;)V
+        +label ~endCustom
+        .load-object 1
+        .get-field ~GuiButton ~buttonId I
+        .if-not-zero *
+        .load-object 0
+        .get-field ~GuiScreenMainMenu ~owner L~GuiManager;
         .any
-        .push-string "gui.button.press"
-        .any
-    }
-
-    static void <clinit>() {
-        .any
-        .push-string "textures/gui/widgets.png"
+        .invoke-virtual ~GuiManager ~setScreen (L~GuiScreen;)V
         .any
     }
 }
