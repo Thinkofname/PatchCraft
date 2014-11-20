@@ -64,10 +64,10 @@ fun createPatchedJar(): File? {
 
     val outJar = File(jarStore, "$hashHex.jar")
     if (outJar.exists()) {
-        println("Found, using")
+        println("Found $hashHex, using...")
         return outJar
     }
-    println("Not found, building")
+    println("Could not find $hashHex, building...")
 
 
     println("Loading original jar")
