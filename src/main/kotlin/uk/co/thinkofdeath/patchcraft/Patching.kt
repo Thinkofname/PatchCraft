@@ -11,13 +11,13 @@ import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
-import java.util.Comparator
 import uk.co.thinkofdeath.patchtools.disassemble.Disassembler
 import uk.co.thinkofdeath.patchtools.PatchScope
-import org.objectweb.asm.ClassReader
 import kotlin.util.measureTimeMillis
+import java.security.MessageDigest
+import java.math.BigInteger
 
-fun createPatchedJar() : File? {
+fun createPatchedJar(): File? {
     val minecraftFolder = getMinecraftLocation()
     val targetVersion = File(minecraftFolder, "versions/$MINECRAFT_VERSION/")
     if (!targetVersion.exists()) {
@@ -29,10 +29,7 @@ fun createPatchedJar() : File? {
         return null;
     }
 
-    println("Loading original jar")
-    val jar = File(targetVersion, "$MINECRAFT_VERSION.jar")
-    val classes = ClassSet(ClassPathWrapper(jar))
-    val resources = hashMapOf<String, ByteArray>()
+    println("Finding patches")
 
     val self = File(javaClass<Dummy>()
         .getProtectionDomain()
@@ -40,6 +37,44 @@ fun createPatchedJar() : File? {
         .getLocation()
         .toURI()
     )
+    val patches = sortedMapOf<String, ByteArray>()
+    ZipFile(self).use {
+        val entries = it.entries()
+        while (entries.hasMoreElements()) {
+            var file = entries.nextElement()
+            if (file.getName().endsWith(".jpatch")) {
+                it.getInputStream(file).use {
+                    patches.set(file.getName(), it.readBytes())
+                }
+            }
+        }
+    }
+
+    println("Checking for cached build")
+    val hash = MessageDigest.getInstance("SHA1")
+
+    patches.forEach {
+        hash.update(it.value)
+    }
+
+    val hashHex = BigInteger(hash.digest()).toString(16)
+
+    val jarStore = File(self.getParentFile(), "jars")
+    if (!jarStore.exists()) jarStore.mkdirs()
+
+    val outJar = File(jarStore, "$hashHex.jar")
+    if (outJar.exists()) {
+        println("Found, using")
+        return outJar
+    }
+    println("Not found, building")
+
+
+    println("Loading original jar")
+    val jar = File(targetVersion, "$MINECRAFT_VERSION.jar")
+    val classes = ClassSet(ClassPathWrapper(jar))
+    val resources = hashMapOf<String, ByteArray>()
+
     val dis = Disassembler(classes)
 
     ZipFile(jar).use {
@@ -69,20 +104,6 @@ fun createPatchedJar() : File? {
 
     println("Applying patches")
     val patcher = Patcher(classes)
-
-    val patches = sortedMapOf<String, ByteArray>()
-    ZipFile(self).use {
-        val entries = it.entries()
-        while (entries.hasMoreElements()) {
-            var file = entries.nextElement()
-            if (file.getName().endsWith(".jpatch")) {
-                it.getInputStream(file).use {
-                    patches.set(file.getName(), it.readBytes())
-                }
-            }
-        }
-    }
-
     val scope = PatchScope()
 
     patches.forEach {
@@ -94,8 +115,6 @@ fun createPatchedJar() : File? {
     }
 
     println("Saving")
-    var outJar = File.createTempFile("client", ".jar")
-    if (outJar.exists()) outJar.delete()
 
     ZipOutputStream(FileOutputStream(outJar)).use {
         val zip = it
