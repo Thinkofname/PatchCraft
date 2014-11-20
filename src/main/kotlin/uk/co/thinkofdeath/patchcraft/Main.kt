@@ -62,6 +62,7 @@ fun main(args: Array<String>) {
             el.getAsJsonArray("libraries").addAll(
                 orig.getAsJsonArray("libraries")
             )
+            el.add("assets", orig.get("assets"))
 
             out.write(GsonBuilder().setPrettyPrinting().create().toJson(el))
         }

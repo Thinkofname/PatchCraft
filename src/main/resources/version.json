@@ -7,5 +7,5 @@
   "libraries": [],
   "mainClass": "uk.co.thinkofdeath.patchcraft.PatchcraftPackage",
   "minimumLauncherVersion": 14,
-  "assets": "${version}"
+  "assets": ""
 }
