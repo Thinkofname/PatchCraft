@@ -2,9 +2,10 @@
 
 A minecraft client that uses PatchTools to create the jar on run by applying a few patches
 
-## What do it do currently?
+## What does it do currently?
 
-Changes the brand from `vanilla` to `PatchCraft`
+* Changes the brand from `vanilla` to `PatchCraft`
+* Adds a pointless button to the main menu
 
 ## Whats planned?
 
