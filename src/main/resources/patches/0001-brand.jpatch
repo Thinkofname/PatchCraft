@@ -4,8 +4,9 @@ import java.lang.String;
 public class net.minecraft.client.ClientBrandRetriever {
 
     public static String getClientModName() {
-        -push-string *
-        +push-string "PatchCraft"
+        .push-string *
+        +push-string " + PatchCraft"
+        +invoke-virtual java/lang/String concat (Ljava/lang/String;)Ljava/lang/String;
         .return
     }
 }

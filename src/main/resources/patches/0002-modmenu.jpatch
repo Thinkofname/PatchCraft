@@ -1,5 +1,5 @@
 
-public class ~GuiScreenMainMenu extends ~GuiScreen {
+public class ~GuiScreenMainMenu extends ~GuiScreen implements +minecraft.GuiScreen {
 
     public void ~initButtons() {
         .any
@@ -21,46 +21,27 @@ public class ~GuiScreenMainMenu extends ~GuiScreen {
         .pop
         .load-object 0
         .get-field ~GuiScreenMainMenu ~buttonList Ljava/util/List;
-        // Our button
+        //
         +load-object 0
-        +get-field ~GuiScreenMainMenu ~buttonList Ljava/util/List;
-        +new ~GuiButton
-        +dup
-        // ID
-        +push-int 99
-        // X
-        +load-object 0
-        +get-field ~GuiScreenMainMenu ~screenWidth I
-        +push-int 60
-        +sub-int
-        // Y
-        +load-object 0
-        +get-field ~GuiScreenMainMenu ~screenHeight I
-        +push-int 40
-        +sub-int
-        // Width
-        +push-int 60
-        // Height
-        +push-int 20
-        // Text
-        +push-string "PC Options"
-        +invoke-special ~GuiButton <init> (IIIIILjava/lang/String;)V
-        +invoke-interface java/util/List add (Ljava/lang/Object;)Z
-        +pop
-        // End
+        +invoke-static uk/co/thinkofdeath/patchcraft/gui/GuiHandler init (Lminecraft/GuiScreen;)V
+        //
         .any
     }
 
     protected void ~onButtonClick(~GuiButton button) {
+        +load-object 0
         +load-object 1
         +get-field ~GuiButton ~buttonId I
-        +push-int 99
-        +if-not-equal-int ~endCustom
-        +load-object 0
-        +get-field ~GuiScreenMainMenu ~owner L~GuiManager;
-        +push-null
-        +invoke-virtual ~GuiManager ~setScreen (L~GuiScreen;)V
-        +label ~endCustom
+        +invoke-static uk/co/thinkofdeath/patchcraft/gui/GuiHandler onClick (Lminecraft/GuiScreen;I)V
+//        +load-object 1
+//        +get-field ~GuiButton ~buttonId I
+//        +push-int 99
+//        +if-not-equal-int ~endCustom
+//        +load-object 0
+//        +get-field ~GuiScreenMainMenu ~owner L~GuiManager;
+//        +push-null
+//        +invoke-virtual ~GuiManager ~setScreen (L~GuiScreen;)V
+//        +label ~endCustom
         .load-object 1
         .get-field ~GuiButton ~buttonId I
         .if-not-zero *
@@ -69,5 +50,46 @@ public class ~GuiScreenMainMenu extends ~GuiScreen {
         .any
         .invoke-virtual ~GuiManager ~setScreen (L~GuiScreen;)V
         .any
+    }
+
+    public void ~render(int a, int b, float b) {
+        .any
+        .push-string " Demo"
+        .any
+    }
+
+    add public void addButton(int id, int x, int y, int width, int height, java.lang.String text) {
+        +load-object 0
+        +get-field ~GuiScreenMainMenu ~buttonList Ljava/util/List;
+        +new ~GuiButton
+        +dup
+        // ID
+        +load-int 1
+        // X
+        +load-int 2
+        // Y
+        +load-int 3
+        // Width
+        +load-int 4
+        // Height
+        +load-int 5
+        // Text
+        +load-object 6
+        +invoke-special ~GuiButton <init> (IIIIILjava/lang/String;)V
+        +invoke-interface java/util/List add (Ljava/lang/Object;)Z
+        +pop
+        +return
+    }
+
+    add public int getScreenWidth() {
+        +load-object 0
+        +get-field ~GuiScreenMainMenu ~screenWidth I
+        +return
+    }
+
+    add public int getScreenHeight() {
+        +load-object 0
+        +get-field ~GuiScreenMainMenu ~screenHeight I
+        +return
     }
 }
