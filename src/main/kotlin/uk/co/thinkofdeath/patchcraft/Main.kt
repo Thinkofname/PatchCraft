@@ -7,8 +7,11 @@ import java.net.URLClassLoader
 import java.util.Arrays
 import com.google.gson.JsonParser
 import com.google.gson.GsonBuilder
+import java.util.Date
+import java.text.SimpleDateFormat
+import java.net.URL
 
-val MINECRAFT_VERSION = "1.8.1-pre5"
+val MINECRAFT_VERSION = "1.8.1"
 
 fun main(args: Array<String>) {
     if (args.size == 0) {
@@ -54,7 +57,21 @@ fun main(args: Array<String>) {
                 .readText()
                 .replaceAll("\\$\\{version\\}", MINECRAFT_VERSION)
             val el = JsonParser().parse(json).getAsJsonObject()
-            val orig = File(mcFolder, "versions/$MINECRAFT_VERSION/$MINECRAFT_VERSION.json")
+            val origFile = File(mcFolder, "versions/$MINECRAFT_VERSION/$MINECRAFT_VERSION.json")
+            if (!origFile.exists()) {
+                val targetVersion =  origFile.getParentFile()
+                println("Cannot find $MINECRAFT_VERSION downloading...")
+                targetVersion.mkdirs()
+                val jar = File(targetVersion, "$MINECRAFT_VERSION.jar")
+                val jarURL = URL(MC_LOCATION.format(MINECRAFT_VERSION, "jar"))
+                val ver = File(targetVersion, "$MINECRAFT_VERSION.json")
+                val verURL = URL(MC_LOCATION.format(MINECRAFT_VERSION, "json"))
+
+                jar.writeBytes(jarURL.readBytes())
+                ver.writeBytes(verURL.readBytes())
+
+            }
+            val orig = origFile
                 .reader().use {
                 JsonParser().parse(it).getAsJsonObject()
             }
@@ -63,6 +80,8 @@ fun main(args: Array<String>) {
                 orig.getAsJsonArray("libraries")
             )
             el.add("assets", orig.get("assets"))
+            el.add("time", orig.get("time"))
+            el.add("releaseTime", orig.get("releaseTime"))
 
             out.write(GsonBuilder().setPrettyPrinting().create().toJson(el))
         }

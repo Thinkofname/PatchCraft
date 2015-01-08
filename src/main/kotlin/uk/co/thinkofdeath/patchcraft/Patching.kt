@@ -16,17 +16,22 @@ import uk.co.thinkofdeath.patchtools.PatchScope
 import kotlin.util.measureTimeMillis
 import java.security.MessageDigest
 import java.math.BigInteger
+import java.net.URL
+
+val MC_LOCATION = "https://s3.amazonaws.com/Minecraft.Download/versions/%1\$s/%1\$s.%2\$s";
 
 fun createPatchedJar(): File? {
     val minecraftFolder = getMinecraftLocation()
     val targetVersion = File(minecraftFolder, "versions/$MINECRAFT_VERSION/")
     if (!targetVersion.exists()) {
-        // TODO: Download it ourselves?
-        JOptionPane.showMessageDialog(null,
-            "Unable to find a minecraft $MINECRAFT_VERSION jar, please run that version first",
-            "Error",
-            JOptionPane.ERROR_MESSAGE)
-        return null;
+        targetVersion.mkdirs()
+        val jar = File(targetVersion, "$MINECRAFT_VERSION.jar")
+        val jarURL = URL(MC_LOCATION.format(MINECRAFT_VERSION, "jar"))
+        val ver = File(targetVersion, "$MINECRAFT_VERSION.json")
+        val verURL = URL(MC_LOCATION.format(MINECRAFT_VERSION, "jar"))
+
+        jar.writeBytes(jarURL.readBytes())
+        ver.writeBytes(verURL.readBytes())
     }
 
     println("Finding patches")
@@ -87,7 +92,7 @@ fun createPatchedJar(): File? {
                 classes.add(it.getInputStream(file))
 
                 if (java.lang.Boolean.getBoolean("patchcraft.dis")) {
-                    val name = file.getName().substring(0, file.getName().length - 6)
+                    val name = file.getName().substring(0, file.getName().length() - 6)
                     val f = File(self.getParentFile(), "dis/$name.jpatch")
                     if (!f.getParentFile().exists()) f.getParentFile().mkdirs()
                     f.writeText(
